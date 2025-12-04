@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission: Goiânia - The Final Season</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@900&family=Rubik+Glitch&family=Creepster&display=swap" rel="stylesheet">
+    <!-- Ícones para lista e whatsapp -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --stranger-red: #e71d24;
+            --vecna-dark: #0a0101;
+            --portal-blue: #2a2a40;
+        }
+
+        body {
+            background-color: var(--vecna-dark);
+            color: white;
+            font-family: 'Merriweather', serif;
+            overflow: hidden;
+            user-select: none;
+            transition: filter 1s ease;
+        }
+
+        /* Efeito de granulação e vinheta */
+        .vignette {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .film-grain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            z-index: 1;
+        }
+
+        /* Título Principal */
+        .stranger-title {
+            font-weight: 900;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--stranger-red);
+            text-shadow: 0 0 15px rgba(231, 29, 36, 0.7);
+            letter-spacing: -2px;
+            position: relative;
+        }
+        
+        .line-top, .line-bottom {
+            height: 3px;
+            background: var(--stranger-red);
+            box-shadow: 0 0 10px var(--stranger-red);
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Texto da Temporada 5 */
+        .season-5 {
+            font-family: 'Rubik Glitch', cursive;
+            color: #fff;
+            text-shadow: 0 0 10px #fff;
+            letter-spacing: 4px;
+        }
+
+        /* Botões */
+        .btn-neon {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--stranger-red);
+            color: var(--stranger-red);
+            text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--stranger-red), inset 0 0 10px var(--stranger-red);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+        }
+
+        .btn-neon:hover {
+            background: var(--stranger-red);
+            color: black;
+            box-shadow: 0 0 30px var(--stranger-red), inset 0 0 20px var(--stranger-red);
+        }
+
+        /* Vinhas do Vecna (SVG Decorativo) */
+        .vecna-vines {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            filter: drop-shadow(0 0 5px rgba(255,0,0,0.3));
+        }
+        .vine-tl { top: -50px; left: -50px; transform: rotate(180deg); }
+        .vine-br { bottom: -50px; right: -50px; }
+
+        /* Animações */
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(200, 200, 200, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 12s infinite linear;
+        }
+
+        .flicker-mode {
+            animation: flicker 0.15s infinite;
+            background-color: #3a0000 !important;
+        }
+        
+        /* Efeito de Portal ao clicar em SIM */
+        .portal-warp {
+            animation: warpSpeed 1.5s forwards ease-in;
+        }
+
+        @keyframes warpSpeed {
+            0% { transform: scale(1); filter: blur(0px); opacity: 1; }
+            50% { transform: scale(1.5); filter: blur(4px); opacity: 0.8; }
+            100% { transform: scale(3); filter: blur(10px); opacity: 0; }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        #success-modal {
+            display: none;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        /* Botão de Audio */
+        .audio-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+            background: none;
+            border: 1px solid #555;
+            color: #555;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .audio-control:hover, .audio-control.active {
+            border-color: var(--stranger-red);
+            color: var(--stranger-red);
+            box-shadow: 0 0 10px rgba(231, 29, 36, 0.3);
+        }
+        
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            box-shadow: 0 0 10px #25D366;
+        }
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+            box-shadow: 0 0 20px #25D366;
+            color: white;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center h-screen w-screen relative">
+
+    <div class="vignette"></div>
+    <div class="film-grain"></div>
+
+    <!-- Controle de Som -->
+    <button id="toggle-sound" class="audio-control">
+        🔇 Ativar Som Sombrio
+    </button>
+
+    <!-- Vinhas Decorativas (SVGs simples) -->
+    <svg class="vecna-vines vine-tl" viewBox="0 0 100 100">
+        <path d="M10,10 Q50,50 90,10 T90,90" fill="none" stroke="#300" stroke-width="2" />
+        <path d="M0,0 Q40,60 80,0 T100,100" fill="none" stroke="#400" stroke-width="3" />
+        <path d="M20,0 Q60,40 100,20" fill="none" stroke="#2a0000" stroke-width="4" />
+    </svg>
+    <svg class="vecna-vines vine-br" viewBox="0 0 100 100">
+        <path d="M10,10 Q50,50 90,10 T90,90" fill="none" stroke="#300" stroke-width="2" />
+        <path d="M0,0 Q40,60 80,0 T100,100" fill="none" stroke="#400" stroke-width="3" />
+    </svg>
+
+    <div id="particles-container"></div>
+
+    <div class="z-10 text-center px-4 w-full max-w-3xl relative transition-all duration-1000" id="main-content">
+        
+        <!-- Header -->
+        <div class="mb-8 scale-90 md:scale-100 transition-transform duration-500">
+            <p class="season-5 text-sm md:text-lg mb-2 text-red-600 opacity-80">A ÚLTIMA TEMPORADA</p>
+            <div class="line-top mb-2 w-1/2 mx-auto"></div>
+            <h1 class="stranger-title text-5xl md:text-7xl tracking-widest leading-tight mb-2">
+                STRANGER<br>
+                <span class="text-6xl md:text-8xl">THINGS</span>
+            </h1>
+            <div class="line-bottom mt-2 w-3/4 mx-auto"></div>
+        </div>
+
+        <!-- Texto Personalizado -->
+        <div class="mb-10 space-y-4" style="text-shadow: 0 0 5px rgba(255,255,255,0.3);">
+            <p class="text-gray-200 text-xl md:text-2xl font-light">
+                Oi, 
+                <!-- Indireta no hover do nome -->
+                <span class="text-red-500 font-bold text-2xl cursor-help border-b border-red-500 border-dotted" 
+                      style="font-family: 'Rubik Glitch'" 
+                      title="Noun. Definition: The reason I'm travelling 1000km to Goiânia.">
+                    Mel
+                </span>.
+            </p>
+            <p class="text-gray-300 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+                Eu enfrentaria Demogorgons, Vecna e até a estrada inteira até <span class="text-red-400 font-bold">Goiânia</span> só pra ver o final dessa história com você.
+            </p>
+            <p class="text-white font-bold text-lg mt-4 animate-pulse">
+                Vamos maratonar juntos?
+            </p>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex flex-col md:flex-row justify-center items-center gap-8 relative h-40 md:h-24">
+            <button id="btn-yes" onclick="aceitou()" class="btn-neon px-10 py-4 rounded text-2xl w-56 transition-all duration-300 hover:scale-110">
+                COM CERTEZA
+            </button>
+            
+            <button id="btn-no" class="btn-neon px-10 py-4 rounded text-xl w-56 absolute md:relative top-24 md:top-auto opacity-80 hover:opacity-100">
+                NÃO
+            </button>
+        </div>
+        
+        <!-- Footer com Indireta estilo Arquivo Secreto -->
+        <p class="mt-12 text-[10px] text-gray-600 uppercase tracking-[0.3em] opacity-70 hover:opacity-100 transition-opacity">
+            Subject: Mel // Status: <span class="text-red-800 font-bold">Target of Affection</span> // Priority: High
+        </p>
+    </div>
+
+    <!-- Modal Final -->
+    <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95">
+        <div class="text-center p-8 border-4 border-red-900 rounded-lg bg-black shadow-[0_0_80px_rgba(231,29,36,0.6)] max-w-md w-full mx-4 relative overflow-hidden scale-90 opacity-0 transition-all duration-700" id="modal-box">
+            <!-- Background efeito sangue/luz -->
+            <div class="absolute inset-0 bg-red-900 opacity-20 animate-pulse"></div>
+            
+            <h2 class="text-4xl text-red-500 font-bold mb-4 relative z-10" style="font-family: 'Rubik Glitch', cursive;">ACESSO AUTORIZADO!</h2>
+            
+            <div class="text-left bg-gray-900/80 p-4 rounded border border-red-900/50 mb-6 relative z-10">
+                <p class="text-gray-400 text-xs uppercase mb-2 tracking-widest border-b border-gray-700 pb-1">Lista de Suprimentos:</p>
+                <ul class="text-gray-200 space-y-2 text-sm">
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Pipoca amanteigada</li>
+                    <li><i class="fas fa-check text-green-500 mr-2"></i> Ingredientes p/ o doce especial 🍰</li>
+                    <!-- Indireta para professora de inglês -->
+                    <li><i class="fas fa-book-open text-blue-400 mr-2"></i> Aulas de Inglês (Topic: Chemistry)</li>
+                    <li><i class="fas fa-car text-red-500 mr-2"></i> Eu chegando em Goiânia</li>
+                </ul>
+            </div>
+
+            <!-- Frase romântica em inglês (referência a ser uma Eleven/10) -->
+            <p class="text-white text-lg mb-6 relative z-10 italic">
+                "You're an <span class="text-red-500 font-bold">11</span> out of 10."
+            </p>
+
+            <div class="flex flex-col gap-3 relative z-10">
+                <a href="https://wa.me/5569981085056?text=Hello!%20Acabei%20de%20ver%20o%20site!%20Pode%20vir%20para%20Goiânia%20que%20a%20Chemistry%20Class%20tá%20garantida!%20%F0%9F%A7%87%F0%9F%8E%AC%E2%9D%A4%EF%B8%8F" 
+                   target="_blank"
+                   class="btn-neon whatsapp-btn py-3 px-4 rounded font-bold flex items-center justify-center gap-2 no-underline">
+                   <i class="fab fa-whatsapp text-xl"></i> Confirmar Missão
+                </a>
+                
+                <button onclick="reiniciarMissao()" class="text-gray-500 hover:text-red-500 text-xs mt-2 uppercase tracking-widest transition-colors">
+                    <i class="fas fa-undo mr-1"></i> Reabrir Portal (Início)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SISTEMA DE ÁUDIO (Web Audio API) ---
+        // Criando sons via código para não depender de arquivos externos
+        let audioCtx;
+        let ambientOsc;
+        let isMuted = true;
+
+        function initAudio() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            
+            // Botão muda de estado
+            const btn = document.getElementById('toggle-sound');
+            btn.innerText = "🔊 Som Ativado";
+            btn.classList.add('active');
+            isMuted = false;
+            
+            playAmbientDrone();
+        }
+
+        function playAmbientDrone() {
+            if(isMuted) return;
+            // Cria um som grave e constante (Drone)
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(50, audioCtx.currentTime); // Baixa frequência
+            
+            // Filtro para deixar abafado
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+
+            // Modulação (LFO) para oscilar o som
+            const lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.setValueAtTime(0.2, audioCtx.currentTime);
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.setValueAtTime(100, audioCtx.currentTime);
+
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+
+            osc.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // Volume baixo
+            
+            osc.start();
+            lfo.start();
+            ambientOsc = osc;
+        }
+
+        function playGlitchSound() {
+            if(isMuted || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            // Frequência aleatória para parecer erro
+            osc.frequency.setValueAtTime(100 + Math.random() * 500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
+            
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playSuccessSound() {
+            if(isMuted || !audioCtx) return;
+            // Acorde Triunfante Synthwave (Dó Maior com Synth)
+            const frequencies = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+            
+            frequencies.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                // Volume envelope
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                // Leve atraso entre notas (arpejo rápido)
+                osc.start(audioCtx.currentTime + (i * 0.05));
+                osc.stop(audioCtx.currentTime + 3);
+            });
+        }
+
+        function playWarpSound() {
+            if(isMuted || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 1);
+            
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.5);
+        }
+
+        document.getElementById('toggle-sound').addEventListener('click', () => {
+            if(!audioCtx) initAudio();
+            else if(audioCtx.state === 'suspended') audioCtx.resume();
+        });
+
+        // --- LÓGICA DO JOGO ---
+        
+        const btnNo = document.getElementById('btn-no');
+        const btnYes = document.getElementById('btn-yes');
+        const body = document.body;
+        const mainContent = document.getElementById('main-content');
+        let attempts = 0;
+        const maxAttempts = 3;
+
+        // Partículas
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            for(let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.width = Math.random() * 3 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Movimento do botão
+        function moveButton() {
+            attempts++;
+            playGlitchSound(); // Toca som de glitch
+
+            if (attempts >= maxAttempts) {
+                activateVecnaMode();
+                return;
+            }
+
+            const maxWidth = window.innerWidth - btnNo.offsetWidth;
+            const maxHeight = window.innerHeight - btnNo.offsetHeight;
+            const randomX = Math.floor(Math.random() * (maxWidth - 50));
+            const randomY = Math.floor(Math.random() * (maxHeight - 50));
+
+            btnNo.style.position = 'fixed';
+            btnNo.style.left = randomX + 'px';
+            btnNo.style.top = randomY + 'px';
+            btnNo.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
+        }
+
+        btnNo.addEventListener('mouseover', moveButton);
+        btnNo.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(); });
+
+        function activateVecnaMode() {
+            body.classList.add('flicker-mode');
+            
+            btnNo.style.transition = "all 0.5s";
+            btnNo.style.transform = "scale(0) rotate(720deg)";
+            setTimeout(() => { btnNo.remove(); }, 500);
+
+            btnYes.innerText = "SEM ESCAPATÓRIA";
+            btnYes.classList.add('animate-pulse');
+            btnYes.style.transform = "scale(1.1)";
+            btnYes.style.boxShadow = "0 0 50px var(--stranger-red)";
+            
+            setTimeout(() => {
+                body.classList.remove('flicker-mode');
+            }, 2500);
+        }
+
+        function aceitou() {
+            playWarpSound(); // Som de transição
+            
+            // Animação visual de entrada no portal
+            mainContent.classList.add('portal-warp');
+            
+            // Atrasa o modal para criar suspense e tocar o som de vitória no momento certo
+            setTimeout(() => {
+                playSuccessSound(); // Toca acorde de vitória
+                mainContent.style.opacity = '0'; // Esconde o conteúdo principal
+                
+                const modal = document.getElementById('success-modal');
+                const modalBox = document.getElementById('modal-box');
+                
+                modal.style.display = 'flex';
+                // Pequeno delay para permitir o transition de CSS
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    modalBox.style.transform = 'scale(1)';
+                    modalBox.style.opacity = '1';
+                }, 50);
+
+                // Confete
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(p => {
+                    p.style.background = '#ff0000';
+                    p.style.boxShadow = '0 0 15px red';
+                    p.style.animationDuration = '0.5s'; 
+                });
+            }, 1200); // 1.2 segundos de suspense
+        }
+
+        function reiniciarMissao() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
