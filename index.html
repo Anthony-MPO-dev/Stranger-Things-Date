@@ -75,7 +75,7 @@
             letter-spacing: 2px;
         }
 
-        /* Botões */
+        /* Botões Otimizados */
         .btn-neon {
             background: rgba(0, 0, 0, 0.6);
             border: 2px solid var(--stranger-red);
@@ -91,11 +91,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            line-height: 1;
-            min-width: 12rem; 
-            width: auto;
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
+            padding: 1rem 1.5rem;
+            width: 100%;
+            max-width: 16rem;
+            font-size: 1.125rem;
+        }
+        
+        @media (min-width: 768px) {
+            .btn-neon {
+                width: auto;
+                min-width: 14rem;
+                padding: 1.2rem 2.5rem;
+                font-size: 1.5rem;
+            }
         }
 
         .btn-neon:hover, .btn-neon:active {
@@ -104,7 +112,7 @@
             box-shadow: 0 0 20px var(--stranger-red), inset 0 0 10px var(--stranger-red);
         }
 
-        /* Monstro Overlay (Jumpscare) */
+        /* Monstro Overlay */
         .monster-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -131,7 +139,7 @@
             50% { transform: scale(1.05); }
         }
 
-        /* Animações de Terror */
+        /* Animações */
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -146,22 +154,17 @@
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
-        .shake-hard {
-            animation: shake 0.5s infinite;
-        }
+        .shake-hard { animation: shake 0.5s infinite; }
 
         @keyframes draggedToHell {
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            10% { transform: translateY(0) rotate(0deg); opacity: 1; } /* Pausa dramática para os passos */
+            10% { transform: translateY(0) rotate(0deg); opacity: 1; }
             30% { transform: translateY(20px) rotate(10deg); opacity: 1; }
             50% { transform: translateY(-10px) rotate(-10deg); opacity: 1; }
             100% { transform: translateY(600px) rotate(45deg); opacity: 0; }
         }
 
-        .dragged {
-            animation: draggedToHell 1.5s forwards ease-in; /* Aumentei tempo para caber os sons */
-            pointer-events: none;
-        }
+        .dragged { animation: draggedToHell 1.5s forwards ease-in; pointer-events: none; }
 
         @keyframes redAlert {
             0% { background-color: #0a0101; }
@@ -169,13 +172,9 @@
             100% { background-color: #0a0101; }
         }
         
-        .red-alert-mode {
-            animation: redAlert 0.5s infinite;
-        }
+        .red-alert-mode { animation: redAlert 0.5s infinite; }
 
-        .portal-warp {
-            animation: warpSpeed 1.5s forwards ease-in;
-        }
+        .portal-warp { animation: warpSpeed 1.5s forwards ease-in; }
         @keyframes warpSpeed {
             0% { transform: scale(1); filter: blur(0px); opacity: 1; }
             50% { transform: scale(1.5); filter: blur(4px); opacity: 0.8; }
@@ -189,18 +188,54 @@
             transition: opacity 1s ease;
         }
 
-        /* Tela Final (Pós WhatsApp) */
+        /* --- TELA FINAL (LANTERNA) --- */
         #finale-screen {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: black;
             z-index: 100;
+            cursor: none; /* Esconde cursor padrão */
+            opacity: 0;
+            transition: opacity 2s ease-in;
+        }
+
+        /* Imagem de Fundo (Cast + Vecna) */
+        .finale-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('strangerthings.webp');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        /* Camada da Escuridão (Flashlight) */
+        .darkness-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* O gradiente revela o fundo (transparente) e esconde o resto (preto) */
+            background: radial-gradient(circle 200px at var(--cursor-x, 50%) var(--cursor-y, 50%), transparent 0%, rgba(0,0,0,0.95) 30%, black 100%);
+            z-index: 2;
+            pointer-events: none; /* Permite interagir se precisar */
+        }
+
+        /* Conteúdo Texto (Fica por cima da escuridão) */
+        .finale-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            transition: opacity 2s ease-in;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Ajuste de Z-Index das Partículas para aparecerem na frente de TUDO no final */
+        #particles-container {
+            z-index: 101; 
+            pointer-events: none;
         }
 
         .whatsapp-btn {
@@ -220,15 +255,11 @@
         🔇 Som
     </button>
 
-    <!-- Monstro Overlay (Oculto inicialmente) -->
+    <!-- Monstro Overlay -->
     <div id="monster-overlay" class="monster-overlay">
-        <!-- SVG Demogorgon (Estrela de 5 pontas carnuda) -->
         <svg class="monster-face" viewBox="0 0 200 200">
             <defs>
-                <!-- Formato de uma pétala (aba) -->
-                <path id="petal" d="M0,0 Q-25,-60 0,-95 Q25,-60 0,0" fill="#3a0000" stroke="#800" stroke-width="2">
-                </path>
-                <!-- Dentes da pétala -->
+                <path id="petal" d="M0,0 Q-25,-60 0,-95 Q25,-60 0,0" fill="#3a0000" stroke="#800" stroke-width="2"></path>
                 <g id="petal-teeth">
                     <path d="M-10,-30 L0,-40 L10,-30" fill="#eee" />
                     <path d="M-15,-50 L0,-65 L15,-50" fill="#eee" />
@@ -239,16 +270,12 @@
                     <stop offset="100%" stop-color="#000000" />
                 </radialGradient>
             </defs>
-            
             <g transform="translate(100,100)">
-                <!-- 5 Pétalas Rotacionadas -->
                 <g transform="rotate(0)"> <use href="#petal" /> <use href="#petal-teeth" /> </g>
                 <g transform="rotate(72)"> <use href="#petal" /> <use href="#petal-teeth" /> </g>
                 <g transform="rotate(144)"> <use href="#petal" /> <use href="#petal-teeth" /> </g>
                 <g transform="rotate(216)"> <use href="#petal" /> <use href="#petal-teeth" /> </g>
                 <g transform="rotate(288)"> <use href="#petal" /> <use href="#petal-teeth" /> </g>
-                
-                <!-- Centro da Boca (Garganta) -->
                 <circle r="25" fill="black" stroke="#500" stroke-width="2" />
                 <circle r="20" fill="url(#mouth-glow)" opacity="0.6">
                     <animate attributeName="opacity" values="0.4;0.9;0.4" dur="0.5s" repeatCount="indefinite" />
@@ -261,8 +288,6 @@
 
     <!-- Conteúdo Principal -->
     <div class="z-10 text-center px-4 w-full max-w-3xl relative transition-all duration-1000 flex flex-col justify-center h-full" id="main-content">
-        
-        <!-- Header -->
         <div class="mb-4 md:mb-8 transition-transform duration-500">
             <p class="season-5 text-xs md:text-lg mb-1 md:mb-2 text-red-600 opacity-80">A ÚLTIMA TEMPORADA</p>
             <div class="line-top mb-1 md:mb-2 w-1/2 mx-auto"></div>
@@ -273,7 +298,6 @@
             <div class="line-bottom mt-1 md:mt-2 w-3/4 mx-auto"></div>
         </div>
 
-        <!-- Texto -->
         <div class="mb-6 md:mb-10 space-y-2 md:space-y-4" style="text-shadow: 0 0 5px rgba(255,255,255,0.3);">
             <p class="text-gray-200 text-lg md:text-2xl font-light">
                 Oi, 
@@ -291,13 +315,11 @@
             </p>
         </div>
 
-        <!-- Botões -->
-        <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 relative h-32 md:h-24 w-full">
-            <button id="btn-yes" onclick="aceitou()" class="btn-neon px-8 rounded text-lg md:text-2xl transition-all duration-300 hover:scale-110 z-20 bg-black/50 h-14 md:h-16">
+        <div class="flex flex-col md:flex-row justify-center items-center gap-5 md:gap-8 w-full relative mt-2 md:mt-0">
+            <button id="btn-yes" onclick="aceitou()" class="btn-neon rounded transition-all duration-300 hover:scale-110 z-20">
                 COM CERTEZA
             </button>
-            
-            <button id="btn-no" class="btn-neon px-8 rounded text-lg md:text-xl absolute top-16 md:static z-30 h-14 md:h-16">
+            <button id="btn-no" class="btn-neon rounded z-30 opacity-90 md:opacity-80 md:hover:opacity-100">
                 NÃO
             </button>
         </div>
@@ -328,12 +350,11 @@
                 "You're an <span class="text-red-500 font-bold">11</span> out of 10."
             </p>
 
-            <div class="flex flex-col gap-3 relative z-10">
-                <!-- Botão WhatsApp com função 'finalizar' -->
+            <div class="flex flex-col items-center gap-3 relative z-10">
                 <a href="https://wa.me/5569981085056?text=Hello!%20Acabei%20de%20ver%20o%20site!%20Pode%20vir%20para%20Goiânia%20que%20a%20Chemistry%20Class%20tá%20garantida!%20%F0%9F%A7%87%F0%9F%8E%AC%E2%9D%A4%EF%B8%8F" 
                    target="_blank"
                    onclick="finalizarMissao()"
-                   class="btn-neon whatsapp-btn py-3 px-4 rounded font-bold flex items-center justify-center gap-2 no-underline text-sm md:text-base cursor-pointer">
+                   class="btn-neon whatsapp-btn rounded font-bold gap-2 no-underline text-sm md:text-base cursor-pointer">
                    <i class="fab fa-whatsapp text-lg md:text-xl"></i> Confirmar Missão
                 </a>
                 
@@ -344,13 +365,20 @@
         </div>
     </div>
 
-    <!-- Tela Finale (Pós Clique WhatsApp) -->
+    <!-- Tela Finale (Com Efeito Lanterna) -->
     <div id="finale-screen">
-        <h1 class="stranger-title text-4xl md:text-6xl tracking-widest text-center animate-pulse">
-            NOS VEMOS<br>
-            <span class="text-5xl md:text-7xl">NO FIM DE SEMANA</span>
-        </h1>
-        <p class="text-red-600 mt-6 font-mono text-xs uppercase tracking-[0.5em]">To be continued...</p>
+        <div class="finale-bg"></div> <!-- Imagem de Fundo -->
+        <div class="darkness-layer"></div> <!-- Escuridão com buraco -->
+        
+        <div class="finale-content">
+            <h1 class="stranger-title text-4xl md:text-6xl tracking-widest text-center animate-pulse drop-shadow-lg">
+                TO BE<br>
+                <span class="text-5xl md:text-7xl">CONTINUED...</span>
+            </h1>
+            <p class="text-red-600 mt-6 font-mono text-xs uppercase tracking-[0.5em] bg-black/50 px-2">
+                See you this weekend
+            </p>
+        </div>
     </div>
 
     <script>
@@ -358,9 +386,8 @@
         let audioCtx;
         let isMuted = true;
         
-        // Referência aos arquivos de áudio
         const demonAudio = new Audio('demon.mp3');
-        const musicAudio = new Audio('music.mp3'); // Should I Stay or Should I Go
+        const musicAudio = new Audio('music.mp3'); 
         demonAudio.preload = 'auto';
         musicAudio.preload = 'auto';
 
@@ -373,23 +400,18 @@
             btn.classList.add('text-red-500', 'border-red-500');
             isMuted = false;
             
-            // Desbloqueia áudios
             const unlockAudio = (audio) => {
-                audio.play().then(() => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }).catch(e => console.log("Audio unlock attempted"));
+                audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(e => console.log("Audio unlock attempted"));
             };
             
             unlockAudio(demonAudio);
-            demonAudio.currentTime = 19; // Prepara o ponto do grito
+            demonAudio.currentTime = 19; 
             unlockAudio(musicAudio);
 
             playAmbientDrone();
         }
 
-        // --- Sintetizadores de Efeitos Especiais ---
-
+        // Sintetizadores
         function makeDistortionCurve(amount) {
             const k = typeof amount === 'number' ? amount : 50;
             const n_samples = 44100;
@@ -427,7 +449,7 @@
 
         function playMusic() {
             if(isMuted) return;
-            musicAudio.volume = 0.6; // Um pouco mais baixo pra não estourar
+            musicAudio.volume = 0.6;
             musicAudio.currentTime = 0;
             musicAudio.play().catch(e => console.error("Erro ao reproduzir music.mp3:", e));
         }
@@ -491,12 +513,12 @@
         });
 
         // --- LÓGICA DO JOGO ---
-        
         const btnNo = document.getElementById('btn-no');
         const btnYes = document.getElementById('btn-yes');
         const body = document.body;
         const mainContent = document.getElementById('main-content');
         const monsterOverlay = document.getElementById('monster-overlay');
+        const finaleScreen = document.getElementById('finale-screen');
         
         let attempts = 0;
         const maxAttempts = 3;
@@ -504,18 +526,37 @@
         // Partículas
         function createParticles() {
             const container = document.getElementById('particles-container');
-            for(let i = 0; i < 40; i++) {
+            for(let i = 0; i < 50; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
+                particle.style.position = 'absolute';
+                particle.style.background = 'rgba(200, 200, 200, 0.4)';
+                particle.style.borderRadius = '50%';
                 particle.style.left = Math.random() * 100 + 'vw';
                 particle.style.width = Math.random() * 3 + 'px';
                 particle.style.height = particle.style.width;
-                particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                particle.style.animation = `float ${Math.random() * 10 + 5}s infinite linear`;
                 particle.style.animationDelay = Math.random() * 5 + 's';
                 container.appendChild(particle);
             }
         }
         createParticles();
+
+        // Lógica de Movimento da Lanterna
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            finaleScreen.style.setProperty('--cursor-x', x + 'px');
+            finaleScreen.style.setProperty('--cursor-y', y + 'px');
+        });
+        
+        // Suporte para touch (celular)
+        document.addEventListener('touchmove', (e) => {
+            const x = e.touches[0].clientX;
+            const y = e.touches[0].clientY;
+            finaleScreen.style.setProperty('--cursor-x', x + 'px');
+            finaleScreen.style.setProperty('--cursor-y', y + 'px');
+        });
 
         function moveButton() {
             attempts++;
@@ -581,11 +622,10 @@
 
         function aceitou() {
             playWarpSound();
-            playMusic(); // Começa a tocar Should I Stay or Should I Go
+            playMusic();
             mainContent.classList.add('portal-warp');
             
             setTimeout(() => {
-                // playSuccessSound(); // Removido para focar na música
                 mainContent.style.opacity = '0';
                 mainContent.style.pointerEvents = 'none';
                 monsterOverlay.style.display = 'none'; 
@@ -610,19 +650,24 @@
             }, 1200);
         }
 
-        // Função chamada ao clicar no WhatsApp
         function finalizarMissao() {
-            // Pequeno delay para garantir que o clique foi registrado e a nova aba abriu
             setTimeout(() => {
                 const modal = document.getElementById('success-modal');
                 const finale = document.getElementById('finale-screen');
                 
-                // Transição suave: Modal some, Tela final aparece
                 modal.style.opacity = '0';
+                
+                // Muda a cor das partículas de volta para cinza "cinzas do mundo invertido"
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(p => {
+                    p.style.background = 'rgba(200, 200, 200, 0.4)';
+                    p.style.boxShadow = 'none';
+                    p.style.animationDuration = (Math.random() * 5 + 5) + 's'; // Mais lentas
+                });
+
                 setTimeout(() => {
                     modal.style.display = 'none';
-                    finale.style.display = 'flex';
-                    // Pequeno reflow
+                    finale.style.display = 'block'; // Muda para block para ocupar a tela
                     void finale.offsetWidth;
                     finale.style.opacity = '1';
                 }, 1000);
